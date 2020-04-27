@@ -1,0 +1,23 @@
+{
+  "name": "node-ssh-utility",
+  "version": "0.0.1",
+  "description": "An SSH utility for connecting to servers and running local scrips externally",
+  "main": "main.js",
+  "private": false,
+  "scripts": {
+    "dev": "node main.js",
+    "start": "npm run dev",
+    "unit": "",
+    "test": "",
+    "lint": "",
+    "build": ""
+  },
+  "dependencies": {
+    "ssh2": "^0.8.9"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">= 8.11.3",
+    "npm": ">= 5.6.0"
+  }
+}
