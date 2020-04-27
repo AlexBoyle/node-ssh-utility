@@ -44,7 +44,6 @@
 					stdout.write('\nFailed while reading file "' + scriptPath + '" with error:\n' + err + '\n\n');
 					return;
 				}
-				console.clear()
 				ConMgr.startConnection(connectionObjects[connectionString],  script)
 			})
 			
@@ -55,7 +54,6 @@
 
 	let connectTo = function(connectionString) {
 		if (connectionObjects[connectionString] !=  undefined) {
-			console.clear()
 			ConMgr.startConnection(connectionObjects[connectionString]);
 		} else {
 			stdout.write('\nCould not find server alias\n\n');
