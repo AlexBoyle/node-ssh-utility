@@ -4,16 +4,23 @@
   "description": "An SSH utility for connecting to servers and running local scrips externally",
   "main": "main.js",
   "private": false,
+  "_moduleAliases": {
+    "@src": "./src",
+    "@publicFiles": "./publicFiles"
+  },
   "scripts": {
     "dev": "node main.js",
-    "start": "npm run dev",
+    "start": "node service.js",
     "unit": "",
     "test": "",
     "lint": "",
     "build": ""
   },
   "dependencies": {
-    "ssh2": "^0.8.9"
+    "ssh2": "latest",
+    "body-parser": "latest",
+    "express": "latest",
+    "module-alias": "latest"
   },
   "devDependencies": {},
   "engines": {
