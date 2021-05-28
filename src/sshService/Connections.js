@@ -1,12 +1,13 @@
 (function() {
 	'use strict';
-	
+
 	module.exports =  {
 		'local': {
-			host: '192.168.0.10',
+			host: '',
 			port: 22,
-			username: 'major',
-			password: ''
+			username: '',
+			password: '',
+			filter: ''
 		}
 	}
 })()

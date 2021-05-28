@@ -1,6 +1,6 @@
 (function() {
 	'use strict';
-	
+
 	// Dependencies
 	const ConMgr = require('./ConnectionManager');
 	const connectionObjects  = require('./Connections');
@@ -10,22 +10,23 @@
 	const stdin = process.stdin;
 	const stdout = process.stdout;
 	const args = process.argv;
-	const version  = '0.0.1';
+	const version  = '21.03.30.01';
 
 	// Setup
-	if (!process.stdin.setRawMode){
+	if (!process.stdin.setRawMode) {
 		stdout.write('\nCommand does not support this use\n\n')
 		process.exit();
 	}
 	process.stdin.setRawMode(true)
 	stdin.setEncoding('utf8');
-	
+
 	// Print help
 	let printHelp  = function()  {
 		stdout.write('\nTags:\n');
 		stdout.write(' -c	Connect to server alias\n');
 		stdout.write(' -e	Run local script\n');
 		stdout.write(' -l	Server alias list\n');
+		stdout.write(' -r   Run script\n');
 		stdout.write(' -h	help\n');
 		stdout.write(' -v	version\n');
 		stdout.write('\n');
@@ -37,16 +38,24 @@
 	}
 
 	// Open  connection to server and push script to input
-	let runScript = function(connectionString, scriptPath) {
+	let runScript = function(connectionString, scriptPath, scriptText) {
 		if (connectionObjects[connectionString] !=  undefined) {
-			fs.readFile(scriptPath, (err, script) => {
-				if (err) {
-					stdout.write('\nFailed while reading file "' + scriptPath + '" with error:\n' + err + '\n\n');
-					return;
-				}
-				ConMgr.startConnection(connectionObjects[connectionString],  script)
-			})
-			
+			if(scriptPath != null) {
+				fs.readFile(scriptPath, (err, script) => {
+					if (err) {
+						stdout.write('\nFailed while reading file "' + scriptPath + '" with error:\n' + err + '\n\n');
+						return;
+					}
+					ConMgr.runScript(connectionObjects[connectionString],  script).then((result) => {
+						console.log(result)
+					})
+				})
+			}
+			else if(scriptText != null ){
+				ConMgr.runScript(connectionObjects[connectionString],  scriptText).then((result) => {
+					console.log(result)
+				})
+			}
 		} else {
 			stdout.write('\nCould not find server alias\n\n');
 		}
@@ -72,7 +81,8 @@
 	try {
 		let serverAlias = null;
 		let scriptPath = null;
-		
+		let scriptText = null;
+
 		ArgParse:
 		for(var i = 0; i  < args.length; i++) {
 			switch(args[i]) {
@@ -90,16 +100,20 @@
 				case '-v':
 					printVersion();
 					break Driver;
+				case '-r':
+					i++;
+					scriptText = args[i];
+					break ;
 				case '-h':
 					printHelp();
 					break Driver;
 			}
 		}
-		
-		if(serverAlias == null && scriptPath == null) { printHelp(); }
-		else if (scriptPath == null) { connectTo(serverAlias) }
-		else { runScript(serverAlias, scriptPath) }
-		
+
+		if(serverAlias == null && scriptPath == null && scriptText == null) { printHelp(); }
+		else if (scriptPath == null && scriptText == null) { connectTo(serverAlias) }
+		else { runScript(serverAlias, scriptPath, scriptText) }
+
 	} catch(e) {
 		stdout.write('\nFailed with exception: \n' + e + '\n\n');
 	}

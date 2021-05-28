@@ -17,6 +17,7 @@
     "build": ""
   },
   "dependencies": {
+    "ansi-to-html": "latest",
     "ssh2": "latest",
     "body-parser": "latest",
     "express": "latest",

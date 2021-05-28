@@ -1,38 +1,42 @@
 (function() {
 	'use strict';
-	
 	const Client = require('ssh2').Client;
-	const stdin = process.stdin;
-	const stdout = process.stdout;
-	
 	module.exports = new (function() {
-		this.startConnection  = function(connectionObj, script) {
-			let conn = new Client();
-			conn.on('ready', () => {
-				conn.shell((err, stream) => {
-					if (err) {
-						stdout.removeAllListeners('resize');
-						stdin.removeAllListeners('data');
-						stream.end();
-						conn.end();
-						stdout.write(err);
-						process.exit();
-					}
-					stream.on('close', ()  => {
-						stdout.removeAllListeners('resize');
-						stdin.removeAllListeners('data');
-						stream.end();
-						conn.end();
-						process.exit();
-					}).on('data', (data) => { stdout.write(data) }).setWindow(stdout.rows, stdout.columns);
-					stdout.on('resize', () => { stream.setWindow(stdout.rows, stdout.columns) });
-					stdin.removeAllListeners('data');
-					if(script !=  undefined)  {
-						stream.write(script + '\n');
-					}
-					stdin.on('data', (key) => { stream.write(key) });
-				});
-			}).connect(connectionObj);
+		this.runScript  = function(connectionDetails, script) {
+			if(script !=  undefined)  {
+				return new Promise((resolve, reject) => {
+					let result = '';
+					let connection = new Client();
+					connection.on('ready', () => {
+						connection.shell((err, stream) => {
+							let hasReachedFilter = false;
+							if (err) {
+								stream.end();
+								connection.end();
+								stdout.write(err);
+							}
+							stream
+								.on('close', ()  => {
+									stream.end();
+									connection.end();
+									resolve(result);
+								})
+								.on('data', (output) => {
+									output.toString().split('\n').forEach(line =>{
+										if(!hasReachedFilter && line.startsWith(connectionDetails.filter)) {
+											hasReachedFilter = true
+										}
+										else if(hasReachedFilter && !output.toString().startsWith(connectionDetails.filter)) {
+											result += line + '\n';
+										}
+
+									})
+								})
+							stream.write(script + '\nexit\n');
+						});
+					}).connect(connectionDetails);
+				})
+			}
 		}
 	})
 })()
